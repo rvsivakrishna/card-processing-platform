@@ -57,3 +57,16 @@ Expected response:
   }
 }
 ```
+
+
+## Completed Features
+
+- ✅ Kubernetes Namespaces
+- ✅ ConfigMaps
+- ✅ Secrets
+- ✅ Services
+- ✅ Deployments
+- ✅ NGINX Ingress
+- ✅ Health Probes
+- ✅ Rolling Updates
+- ✅ Rollbacks
