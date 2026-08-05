@@ -22,7 +22,9 @@ def payment():
         response = requests.get(CARD_PROCESSOR_URL, timeout=5)
         return jsonify({
             "payment": "received",
-            "processor_response": response.json()
+            "version": "v2",
+    	    "release": "Sprint-4",
+    	    "processor_response": response.json()
         })
     except Exception as e:
         return jsonify({
