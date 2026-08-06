@@ -1,0 +1,36 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: developer-role
+  namespace: card-processing
+
+rules:
+# Pods
+- apiGroups: [""]
+  resources:
+    - pods
+    - pods/log
+  verbs:
+    - get
+    - list
+    - watch
+
+# Deployments
+- apiGroups: ["apps"]
+  resources:
+    - deployments
+  verbs:
+    - get
+    - list
+    - watch
+    - create
+    - update
+    - patch
+
+# Services
+- apiGroups: [""]
+  resources:
+    - services
+  verbs:
+    - get
+    - list
