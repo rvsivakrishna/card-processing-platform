@@ -8,3 +8,4 @@ data:
   LOG_LEVEL: "INFO"
   APP_ENV: "development"
   CARD_PROCESSOR_URL: "http://card-processor-service:8080/process"
+  FRAUD_SERVICE_URL: "http://fraud-service:8081/fraud"
