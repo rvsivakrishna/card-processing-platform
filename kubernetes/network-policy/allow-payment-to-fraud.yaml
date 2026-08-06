@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+
+metadata:
+  name: allow-payment-to-fraud
+  namespace: card-processing
+
+spec:
+  podSelector:
+    matchLabels:
+      app: fraud-service
+
+  policyTypes:
+  - Ingress
+
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: payment-api
+
+    ports:
+    - protocol: TCP
+      port: 8081

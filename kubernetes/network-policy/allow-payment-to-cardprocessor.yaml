@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+
+metadata:
+  name: allow-payment-to-cardprocessor
+  namespace: card-processing
+
+spec:
+  podSelector:
+    matchLabels:
+      app: card-processor
+
+  policyTypes:
+  - Ingress
+
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: payment-api
+
+    ports:
+    - protocol: TCP
+      port: 8080
