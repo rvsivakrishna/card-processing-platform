@@ -1,3 +1,28 @@
+
+                    Internet
+                        │
+                        ▼
+               NGINX Ingress
+                        │
+                        ▼
+                 Payment API
+                        │
+          ┌─────────────┴─────────────┐
+          ▼                           ▼
+    Card Processor              ConfigMap
+          │                           │
+          └─────────────┬─────────────┘
+                        ▼
+                     Secret
+
+──────────────────────────────────────────
+
+Deployment
+Rolling Updates
+HPA
+RBAC
+Resource Limits
+
 # Sprint Roadmap
 
 | Sprint | Topic | Status |
