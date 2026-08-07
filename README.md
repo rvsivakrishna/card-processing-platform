@@ -272,3 +272,32 @@ Verified:
 - Payment transaction workflow
 - Fraud decision response
 - NetworkPolicy enforcement
+
+## Sprint 8 – Audit Service with Persistent Storage
+
+### Features
+
+- Audit Service microservice
+- Internal ClusterIP communication
+- Persistent Volume (PV)
+- Persistent Volume Claim (PVC)
+- Transaction audit logging
+- Payment → Audit integration
+- Persistent audit history across pod restarts
+
+### Flow
+
+Internet
+   │
+   ▼
+NGINX Ingress
+   │
+   ▼
+Payment API
+   ├──► Fraud Service
+   ├──► Card Processor
+   └──► Audit Service
+               │
+               ▼
+         Persistent Volume
+
