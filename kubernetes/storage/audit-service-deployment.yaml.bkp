@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: audit-service
+  namespace: card-processing
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: audit-service
+
+  template:
+    metadata:
+      labels:
+        app: audit-service
+
+    spec:
+
+      containers:
+
+      - name: audit-service
+
+        image: rvsivakrishna/audit-service:v1
+
+        ports:
+        - containerPort: 8082
+
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+
+          limits:
+            cpu: "250m"
+            memory: "256Mi"
+
+        volumeMounts:
+        - name: audit-storage
+          mountPath: /data
+
+      volumes:
+      - name: audit-storage
+
+        persistentVolumeClaim:
+          claimName: card-transactions-pvc
