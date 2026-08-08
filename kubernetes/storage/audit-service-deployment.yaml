@@ -18,6 +18,14 @@ spec:
         app: audit-service
 
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+
       containers:
         - name: audit-service
 
@@ -26,6 +34,14 @@ spec:
 
           ports:
             - containerPort: 8082
+              protocol: TCP
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
 
           env:
             - name: MYSQL_HOST
@@ -65,7 +81,13 @@ spec:
             - name: audit-storage
               mountPath: /data
 
+            - name: tmp
+              mountPath: /tmp
+
       volumes:
         - name: audit-storage
           persistentVolumeClaim:
             claimName: card-transactions-pvc
+
+        - name: tmp
+          emptyDir: {}
