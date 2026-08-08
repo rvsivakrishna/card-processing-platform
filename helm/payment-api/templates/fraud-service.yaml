@@ -1,0 +1,17 @@
+{{- if .Values.fraudService.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: fraud-service
+
+spec:
+  type: ClusterIP
+
+  selector:
+    app: fraud-service
+
+  ports:
+    - port: {{ .Values.fraudService.service.port }}
+      targetPort: {{ .Values.fraudService.service.targetPort }}
+      protocol: TCP
+{{- end }}

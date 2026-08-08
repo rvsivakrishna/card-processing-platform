@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  card-processing-platform:
+  - apiVersion: v2
+    appVersion: v8
+    created: "2026-08-08T13:02:47.216592771Z"
+    description: Helm chart for the complete Card Processing Platform
+    digest: 5a5f232dd29d931b6ec980816f3bb07f60ac1523295d0d13c60686780ca7ae96
+    name: card-processing-platform
+    type: application
+    urls:
+    - card-processing-platform-1.0.0.tgz
+    version: 1.0.0
+generated: "2026-08-08T13:02:47.206892592Z"

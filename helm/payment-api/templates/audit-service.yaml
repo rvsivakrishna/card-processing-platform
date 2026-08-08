@@ -1,0 +1,17 @@
+{{- if .Values.auditService.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: audit-service
+
+spec:
+  type: ClusterIP
+
+  selector:
+    app: audit-service
+
+  ports:
+    - port: {{ .Values.auditService.service.port }}
+      targetPort: {{ .Values.auditService.service.targetPort }}
+      protocol: TCP
+{{- end }}

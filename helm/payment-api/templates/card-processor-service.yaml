@@ -1,0 +1,17 @@
+{{- if .Values.cardProcessor.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: card-processor-service
+
+spec:
+  type: ClusterIP
+
+  selector:
+    app: card-processor
+
+  ports:
+    - port: {{ .Values.cardProcessor.service.port }}
+      targetPort: {{ .Values.cardProcessor.service.targetPort }}
+      protocol: TCP
+{{- end }}

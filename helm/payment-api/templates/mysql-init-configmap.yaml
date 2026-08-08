@@ -1,0 +1,21 @@
+{{- if .Values.dbInit.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.dbInit.configMapName }}
+
+data:
+  init-db.sql: |
+    CREATE DATABASE IF NOT EXISTS auditdb;
+
+    USE auditdb;
+
+    CREATE TABLE IF NOT EXISTS transactions (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        timestamp VARCHAR(50) NOT NULL,
+        transaction_id VARCHAR(100) NOT NULL,
+        status VARCHAR(20) NOT NULL,
+        risk VARCHAR(20) NOT NULL,
+        amount DECIMAL(12,2) NOT NULL
+    );
+{{- end }}

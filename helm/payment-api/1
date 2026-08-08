@@ -1,0 +1,53 @@
+replicaCount: 2
+
+image:
+  repository: rvsivakrishna/payment-api
+  tag: "v8"
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+
+config:
+  APP_ENV: development
+  CARD_PROCESSOR_URL: http://card-processor-service:8080/process
+  LOG_LEVEL: INFO
+
+secret:
+  existingSecret: card-processing-secret
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 250m
+    memory: 256Mi
+
+ingress:
+  enabled: true
+  className: nginx
+  name: payment-ingress
+  host: payment.bank.local
+  path: /
+  pathType: Prefix
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: "/"
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 20
+
+networkPolicy:
+  enabled: true
+  ingressNamespace:
+    name: ingress-nginx
+  port: 8080
+
+rollingUpdate:
+  maxSurge: "25%"
+  maxUnavailable: "25%" 

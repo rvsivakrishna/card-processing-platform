@@ -1,0 +1,17 @@
+{{- if .Values.mysql.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-headless
+
+spec:
+  clusterIP: None
+
+  selector:
+    app: mysql
+
+  ports:
+    - name: mysql
+      port: {{ .Values.mysql.service.port }}
+      targetPort: {{ .Values.mysql.service.port }}
+{{- end }}
