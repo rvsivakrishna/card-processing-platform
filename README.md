@@ -301,3 +301,80 @@ Payment API
                ▼
          Persistent Volume
 
+## Sprint 9 — Audit Service: MySQL Persistence & Kubernetes Secrets
+
+Sprint 9 replaces the file-based `audit.log` approach with persistent MySQL-backed audit storage.
+
+### Architecture
+
+```text
+Payment / Application Event
+          |
+          v
+    Audit Service :8082
+          |
+          | MySQL credentials
+          | injected from Kubernetes Secret
+          v
+    mysql-service :3306
+          |
+          v
+       auditdb
+          |
+          v
+     transactions
+```
+
+### Implemented
+
+* Replaced file-based audit persistence with MySQL.
+* Added `Audit Service` endpoints:
+
+  * `GET /health`
+  * `POST /audit`
+  * `GET /history`
+* Added MySQL StatefulSet and Services.
+* Added MySQL persistent storage.
+* Added Kubernetes Secret for database credentials.
+* Injected `MYSQL_DATABASE`, `MYSQL_USER`, and `MYSQL_PASSWORD` using `secretKeyRef`.
+* Configured Audit Service to connect through `mysql-service`.
+* Deployed the Audit Service using an immutable SHA256 image digest.
+* Verified the container runs as the non-root `audituser`.
+* Scanned the container image with Trivy.
+* Signed and verified the image using Cosign.
+* Verified audit data survives Audit Service pod recreation.
+
+### Validation
+
+A test transaction was submitted:
+
+```text
+Transaction: TXN-SPRINT9-001
+Status: SUCCESS
+Risk: LOW
+Amount: 1500.75
+```
+
+`POST /audit` returned:
+
+```json
+{
+  "message": "Audit record stored",
+  "transaction": "TXN-SPRINT9-001"
+}
+```
+
+`GET /history` subsequently returned the persisted transaction from MySQL.
+
+The Audit Service pod was then recreated and the same transaction remained available, confirming that audit records are persisted independently of the application pod.
+
+### Security
+
+Database credentials are not hard-coded into the application image or Deployment manifest. Kubernetes `Secret` references are used to inject the required database credentials into the Audit Service.
+
+The container image is:
+
+* Trivy scanned
+* Signed with Cosign
+* Verified against its immutable SHA256 digest
+* Running as a non-root user
