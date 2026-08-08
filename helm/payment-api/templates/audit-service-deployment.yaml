@@ -1,0 +1,86 @@
+{{- if .Values.auditService.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: audit-service
+
+spec:
+  replicas: {{ .Values.auditService.replicaCount }}
+
+  selector:
+    matchLabels:
+      app: audit-service
+
+  template:
+    metadata:
+      labels:
+        app: audit-service
+
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+
+      containers:
+        - name: audit-service
+
+          image: "{{ .Values.auditService.image.repository }}@{{ .Values.auditService.image.digest }}"
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - containerPort: {{ .Values.auditService.service.targetPort }}
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+
+          env:
+            - name: MYSQL_HOST
+              value: mysql-service
+
+            - name: MYSQL_PORT
+              value: "3306"
+
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auditService.mysqlSecret }}
+                  key: MYSQL_DATABASE
+
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auditService.mysqlSecret }}
+                  key: MYSQL_USER
+
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auditService.mysqlSecret }}
+                  key: MYSQL_PASSWORD
+
+          resources:
+            {{- toYaml .Values.auditService.resources | nindent 12 }}
+
+          volumeMounts:
+            - name: audit-storage
+              mountPath: /data
+
+            - name: tmp
+              mountPath: /tmp
+
+      volumes:
+        - name: audit-storage
+          persistentVolumeClaim:
+            claimName: {{ .Values.auditService.persistence.existingClaim }}
+
+        - name: tmp
+          emptyDir: {}
+{{- end }}

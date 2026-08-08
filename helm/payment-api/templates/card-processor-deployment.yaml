@@ -1,0 +1,32 @@
+{{- if .Values.cardProcessor.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: card-processor
+  labels:
+    app: card-processor
+    {{- include "payment-api.labels" . | nindent 4 }}
+
+spec:
+  replicas: {{ .Values.cardProcessor.replicaCount }}
+
+  selector:
+    matchLabels:
+      app: card-processor
+
+  template:
+    metadata:
+      labels:
+        app: card-processor
+
+    spec:
+      containers:
+        - name: card-processor
+
+          image: "{{ .Values.cardProcessor.image.repository }}:{{ .Values.cardProcessor.image.tag }}"
+          imagePullPolicy: {{ .Values.cardProcessor.image.pullPolicy }}
+
+          ports:
+            - containerPort: {{ .Values.cardProcessor.service.targetPort }}
+              protocol: TCP
+{{- end }}

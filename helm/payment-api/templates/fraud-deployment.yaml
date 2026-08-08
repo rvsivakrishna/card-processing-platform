@@ -1,0 +1,31 @@
+{{- if .Values.fraudService.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fraud-service
+  labels:
+    app: fraud-service
+
+spec:
+  replicas: {{ .Values.fraudService.replicaCount }}
+
+  selector:
+    matchLabels:
+      app: fraud-service
+
+  template:
+    metadata:
+      labels:
+        app: fraud-service
+
+    spec:
+      containers:
+        - name: fraud-service
+
+          image: "{{ .Values.fraudService.image.repository }}:{{ .Values.fraudService.image.tag }}"
+          imagePullPolicy: {{ .Values.fraudService.image.pullPolicy }}
+
+          ports:
+            - containerPort: {{ .Values.fraudService.service.targetPort }}
+              protocol: TCP
+{{- end }}

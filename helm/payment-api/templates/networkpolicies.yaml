@@ -1,0 +1,129 @@
+{{- if .Values.networkPolicies.enabled }}
+
+{{- if .Values.networkPolicies.defaultDeny.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  labels:
+    {{- include "payment-api.labels" . | nindent 4 }}
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+---
+{{- end }}
+
+{{- if .Values.networkPolicies.paymentToCardProcessor.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-payment-to-cardprocessor
+  labels:
+    {{- include "payment-api.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app: card-processor
+
+  policyTypes:
+    - Ingress
+
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: payment-api
+
+      ports:
+        - protocol: TCP
+          port: {{ .Values.networkPolicies.paymentToCardProcessor.port }}
+---
+{{- end }}
+
+{{- if .Values.networkPolicies.paymentToFraud.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-payment-to-fraud
+  labels:
+    {{- include "payment-api.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app: fraud-service
+
+  policyTypes:
+    - Ingress
+
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: payment-api
+
+      ports:
+        - protocol: TCP
+          port: {{ .Values.networkPolicies.paymentToFraud.port }}
+---
+{{- end }}
+
+{{- if .Values.networkPolicies.paymentToAudit.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-payment-to-audit
+  labels:
+    {{- include "payment-api.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app: audit-service
+
+  policyTypes:
+    - Ingress
+
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: payment-api
+
+      ports:
+        - protocol: TCP
+          port: {{ .Values.networkPolicies.paymentToAudit.port }}
+---
+{{- end }}
+
+{{- if .Values.networkPolicies.database.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-db-access
+  labels:
+    {{- include "payment-api.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app: mysql
+
+  policyTypes:
+    - Ingress
+
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: mysql-db-init
+
+        - podSelector:
+            matchLabels:
+              app: audit-service
+
+      ports:
+        - protocol: TCP
+          port: {{ .Values.networkPolicies.database.port }}
+
+{{- end }}
+
+{{- end }}

@@ -1,0 +1,72 @@
+{{- if .Values.dbInit.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mysql-db-init
+  labels:
+    {{- include "payment-api.labels" . | nindent 4 }}
+
+spec:
+  backoffLimit: 4
+
+  template:
+    metadata:
+      labels:
+        app: mysql-db-init
+
+    spec:
+      restartPolicy: OnFailure
+
+      containers:
+        - name: mysql-client
+          image: {{ .Values.dbInit.image }}
+
+          env:
+            - name: MYSQL_HOST
+              value: {{ .Values.dbInit.host | quote }}
+
+            - name: MYSQL_PORT
+              value: {{ .Values.dbInit.port | quote }}
+
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.dbInit.secretName }}
+                  key: MYSQL_ROOT_PASSWORD
+
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Waiting for MySQL..."
+
+              until mysqladmin ping \
+                -h "$MYSQL_HOST" \
+                -P "$MYSQL_PORT" \
+                -uroot \
+                -p"$MYSQL_ROOT_PASSWORD" \
+                --silent
+              do
+                sleep 3
+              done
+
+              echo "MySQL is ready."
+
+              mysql \
+                -h "$MYSQL_HOST" \
+                -P "$MYSQL_PORT" \
+                -uroot \
+                -p"$MYSQL_ROOT_PASSWORD" \
+                < /scripts/init-db.sql
+
+              echo "Database initialization completed."
+
+          volumeMounts:
+            - name: init-script
+              mountPath: /scripts
+
+      volumes:
+        - name: init-script
+          configMap:
+            name: {{ .Values.dbInit.configMapName }}
+{{- end }}
