@@ -1,0 +1,12 @@
+CREATE DATABASE IF NOT EXISTS auditdb;
+
+USE auditdb;
+
+CREATE TABLE IF NOT EXISTS transactions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    timestamp VARCHAR(50) NOT NULL,
+    transaction_id VARCHAR(100) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    risk VARCHAR(20) NOT NULL,
+    amount DECIMAL(12,2) NOT NULL
+);

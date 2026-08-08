@@ -1,0 +1,71 @@
+apiVersion: batch/v1
+kind: Job
+
+metadata:
+  name: mysql-db-init
+  namespace: card-processing
+
+spec:
+  backoffLimit: 4
+
+  template:
+    metadata:
+      labels:
+        app: mysql-db-init
+
+    spec:
+      restartPolicy: OnFailure
+
+      containers:
+      - name: mysql-client
+
+        image: mysql:8.4
+
+        env:
+        - name: MYSQL_HOST
+          value: mysql-service
+
+        - name: MYSQL_PORT
+          value: "3306"
+
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_ROOT_PASSWORD
+
+        command:
+        - /bin/sh
+        - -c
+        - |
+          echo "Waiting for MySQL..."
+
+          until mysqladmin ping \
+            -h "$MYSQL_HOST" \
+            -P "$MYSQL_PORT" \
+            -uroot \
+            -p"$MYSQL_ROOT_PASSWORD" \
+            --silent
+          do
+            sleep 3
+          done
+
+          echo "MySQL is ready."
+
+          mysql \
+            -h "$MYSQL_HOST" \
+            -P "$MYSQL_PORT" \
+            -uroot \
+            -p"$MYSQL_ROOT_PASSWORD" \
+            < /scripts/init-db.sql
+
+          echo "Database initialization completed."
+
+        volumeMounts:
+        - name: init-script
+          mountPath: /scripts
+
+      volumes:
+      - name: init-script
+        configMap:
+          name: mysql-init-script

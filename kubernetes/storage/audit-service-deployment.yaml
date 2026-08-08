@@ -18,31 +18,54 @@ spec:
         app: audit-service
 
     spec:
-
       containers:
+        - name: audit-service
 
-      - name: audit-service
+          image: rvsivakrishna/audit-service@sha256:bcc71bb106b65be2dd99d47c46d30acccc74d34adac6194d1371e32dfaf37d05
+          imagePullPolicy: IfNotPresent
 
-        image: rvsivakrishna/audit-service:v1
+          ports:
+            - containerPort: 8082
 
-        ports:
-        - containerPort: 8082
+          env:
+            - name: MYSQL_HOST
+              value: "mysql-service"
 
-        resources:
-          requests:
-            cpu: "100m"
-            memory: "128Mi"
+            - name: MYSQL_PORT
+              value: "3306"
 
-          limits:
-            cpu: "250m"
-            memory: "256Mi"
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_DATABASE
 
-        volumeMounts:
-        - name: audit-storage
-          mountPath: /data
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_USER
+
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_PASSWORD
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
+
+          volumeMounts:
+            - name: audit-storage
+              mountPath: /data
 
       volumes:
-      - name: audit-storage
-
-        persistentVolumeClaim:
-          claimName: card-transactions-pvc
+        - name: audit-storage
+          persistentVolumeClaim:
+            claimName: card-transactions-pvc

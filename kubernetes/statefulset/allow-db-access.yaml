@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-db-access
+  namespace: card-processing
+
+spec:
+  podSelector:
+    matchLabels:
+      app: mysql
+
+  policyTypes:
+  - Ingress
+
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: mysql-db-init
+
+    - podSelector:
+        matchLabels:
+          app: audit-service
+
+    ports:
+    - protocol: TCP
+      port: 3306
