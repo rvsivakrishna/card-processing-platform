@@ -3,5 +3,5 @@ name: card-processing-platform
 description: Helm chart for the complete Card Processing Platform
 type: application
 
-version: 1.0.0
+version: 1.0.1
 appVersion: "v8"
