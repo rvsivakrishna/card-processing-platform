@@ -378,3 +378,103 @@ The container image is:
 * Signed with Cosign
 * Verified against its immutable SHA256 digest
 * Running as a non-root user
+
+
+## Sprint 10 – Production Deployment with Helm
+
+### Objective
+
+Convert the Kubernetes deployment into a reusable, version-controlled Helm-based deployment model suitable for production-style release management.
+
+### Implementation
+
+The Payment API was packaged as a Helm chart with configurable deployment parameters.
+
+Implemented:
+
+- Helm Chart structure
+- Configurable replica count
+- Configurable image repository and tag
+- Kubernetes Deployment templating
+- Kubernetes Service templating
+- Resource requests and limits
+- Health probes
+- NetworkPolicy integration
+- Helm release upgrades
+- Helm rollback support
+- Versioned Helm packages
+- Local Helm repository index
+
+### Helm Structure
+
+```text
+helm/payment-api/
+├── Chart.yaml
+├── values.yaml
+└── templates/
+    ├── deployment.yaml
+    ├── service.yaml
+    └── networkpolicy.yaml
+
+
+
+### Sprint 11 section
+
+Immediately after Sprint 10, add:
+
+```markdown
+## Sprint 11 – Monitoring and Observability
+
+### Objective
+
+Introduce infrastructure and application-level observability using Prometheus and Grafana.
+
+### Monitoring Stack
+
+Implemented:
+
+- Prometheus Server
+- Grafana
+- Node Exporter
+- kube-state-metrics
+- Kubernetes infrastructure metrics
+- Payment API application metrics
+- Prometheus `/metrics` endpoint
+- PromQL validation
+
+### Architecture
+
+```text
+Kubernetes Nodes
+      |
+      +------ Node Exporter
+      |
+      v
+  Prometheus
+      |
+      | PromQL
+      v
+   Grafana
+
+
+Kubernetes Objects
+      |
+      v
+kube-state-metrics
+      |
+      v
+  Prometheus
+
+
+Payment Requests
+      |
+      v
+ Payment API
+      |
+      +------ /metrics
+                 |
+                 v
+             Prometheus
+                 |
+                 v
+              Grafana
