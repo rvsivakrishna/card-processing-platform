@@ -2,7 +2,7 @@ replicaCount: 2
 
 image:
   repository: rvsivakrishna/payment-api
-  tag: "v8"
+  tag: "v9"
   pullPolicy: Always
 
 service:

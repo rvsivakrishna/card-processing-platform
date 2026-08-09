@@ -3,12 +3,22 @@ entries:
   card-processing-platform:
   - apiVersion: v2
     appVersion: v8
-    created: "2026-08-08T13:02:47.216592771Z"
+    created: "2026-08-08T14:08:26.181462359Z"
+    description: Helm chart for the complete Card Processing Platform
+    digest: 03907f71ad37bd1dcd1fccbfbc05376031d2b0bcf13bd2daf3e3bb3e84eba64a
+    name: card-processing-platform
+    type: application
+    urls:
+    - https://raw.githubusercontent.com/rvsivakrishna/card-processing-platform/main/helm-repo/card-processing-platform-1.0.1.tgz
+    version: 1.0.1
+  - apiVersion: v2
+    appVersion: v8
+    created: "2026-08-08T14:08:26.146042675Z"
     description: Helm chart for the complete Card Processing Platform
     digest: 5a5f232dd29d931b6ec980816f3bb07f60ac1523295d0d13c60686780ca7ae96
     name: card-processing-platform
     type: application
     urls:
-    - card-processing-platform-1.0.0.tgz
+    - https://raw.githubusercontent.com/rvsivakrishna/card-processing-platform/main/helm-repo/card-processing-platform-1.0.0.tgz
     version: 1.0.0
-generated: "2026-08-08T13:02:47.206892592Z"
+generated: "2026-08-08T14:08:25.435239419Z"

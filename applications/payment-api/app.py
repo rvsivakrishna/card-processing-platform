@@ -1,10 +1,16 @@
-# `applications/payment-api/app.py`
 import os
 import uuid
+import time
 from datetime import datetime
 
 import requests
-from flask import Flask, jsonify
+from flask import Flask, jsonify, Response
+from prometheus_client import (
+    Counter,
+    Histogram,
+    generate_latest,
+    CONTENT_TYPE_LATEST,
+)
 
 app = Flask(__name__)
 
@@ -29,7 +35,39 @@ AUDIT_SERVICE_URL = os.getenv(
 
 DEFAULT_AMOUNT = 2500
 
-RELEASE = "Sprint-8"
+RELEASE = "Sprint-11-Monitoring"
+
+# ------------------------------------------------------------------
+# Prometheus Metrics
+# ------------------------------------------------------------------
+
+PAYMENT_REQUESTS = Counter(
+    "payment_requests_total",
+    "Total number of payment requests"
+)
+
+PAYMENT_STATUS = Counter(
+    "payment_status_total",
+    "Total payments by final status",
+    ["status"]
+)
+
+PAYMENT_RISK = Counter(
+    "payment_risk_total",
+    "Total payments by fraud risk level",
+    ["risk"]
+)
+
+PAYMENT_ERRORS = Counter(
+    "payment_errors_total",
+    "Total number of payment processing errors",
+    ["type"]
+)
+
+PAYMENT_DURATION = Histogram(
+    "payment_request_duration_seconds",
+    "Payment request processing duration in seconds"
+)
 
 # ------------------------------------------------------------------
 # Helper Functions
@@ -89,7 +127,7 @@ def send_audit(transaction, amount, risk, status):
 
 
 # ------------------------------------------------------------------
-# Health Endpoint
+# Health Endpoints
 # ------------------------------------------------------------------
 
 @app.route("/")
@@ -113,11 +151,28 @@ def health():
 
 
 # ------------------------------------------------------------------
+# Prometheus Metrics Endpoint
+# ------------------------------------------------------------------
+
+@app.route("/metrics")
+def metrics():
+
+    return Response(
+        generate_latest(),
+        mimetype=CONTENT_TYPE_LATEST
+    )
+
+
+# ------------------------------------------------------------------
 # Payment Endpoint
 # ------------------------------------------------------------------
 
 @app.route("/payment")
 def payment():
+
+    PAYMENT_REQUESTS.inc()
+
+    start_time = time.time()
 
     try:
 
@@ -127,13 +182,17 @@ def payment():
 
         fraud = check_fraud()
 
-        risk = fraud.get("risk")
+        risk = fraud.get("risk", "UNKNOWN")
+
+        PAYMENT_RISK.labels(risk=risk).inc()
 
         # ----------------------------------------------------------
         # HIGH RISK
         # ----------------------------------------------------------
 
         if risk == "HIGH":
+
+            PAYMENT_STATUS.labels(status="DECLINED").inc()
 
             send_audit(
                 transaction,
@@ -162,6 +221,10 @@ def payment():
 
         if risk == "MEDIUM":
 
+            PAYMENT_STATUS.labels(
+                status="PENDING_VERIFICATION"
+            ).inc()
+
             send_audit(
                 transaction,
                 amount,
@@ -189,6 +252,8 @@ def payment():
 
         processor = process_card()
 
+        PAYMENT_STATUS.labels(status="APPROVED").inc()
+
         send_audit(
             transaction,
             amount,
@@ -214,6 +279,12 @@ def payment():
 
     except requests.exceptions.RequestException as e:
 
+        PAYMENT_STATUS.labels(status="FAILED").inc()
+
+        PAYMENT_ERRORS.labels(
+            type="dependency_error"
+        ).inc()
+
         return jsonify({
 
             "status": "FAILED",
@@ -226,6 +297,12 @@ def payment():
 
     except Exception as e:
 
+        PAYMENT_STATUS.labels(status="FAILED").inc()
+
+        PAYMENT_ERRORS.labels(
+            type="application_error"
+        ).inc()
+
         return jsonify({
 
             "status": "FAILED",
@@ -235,6 +312,12 @@ def payment():
             "release": RELEASE
 
         }), 500
+
+    finally:
+
+        PAYMENT_DURATION.observe(
+            time.time() - start_time
+        )
 
 
 # ------------------------------------------------------------------

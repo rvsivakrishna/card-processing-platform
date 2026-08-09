@@ -1,8 +1,11 @@
 apiVersion: apps/v1
 kind: Deployment
+
 metadata:
-  name: {{ include "payment-api.fullname" . }}
+  name: payment-api
+
   labels:
+    app: payment-api
     {{- include "payment-api.labels" . | nindent 4 }}
 
 spec:
@@ -18,15 +21,22 @@ spec:
 
   selector:
     matchLabels:
-      {{- include "payment-api.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/name: payment-api
+      app.kubernetes.io/instance: {{ .Release.Name }}
 
   template:
     metadata:
       labels:
-        {{- include "payment-api.selectorLabels" . | nindent 8 }}
+        # Compatibility label used by existing NetworkPolicies
+        app: payment-api
+
+        # Standard Helm labels
+        app.kubernetes.io/name: payment-api
+        app.kubernetes.io/instance: {{ .Release.Name }}
 
     spec:
       containers:
+
         - name: payment-api
 
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -34,15 +44,16 @@ spec:
 
           ports:
             - name: http
-              containerPort: 8080
+              containerPort: {{ .Values.service.targetPort }}
               protocol: TCP
 
           envFrom:
+
             - configMapRef:
-                name: {{ .Values.config.configMapName }}
+                name: card-processing-config
 
             - secretRef:
-                name: {{ .Values.config.secretName }}
+                name: {{ .Values.secret.existingSecret }}
 
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
@@ -51,6 +62,7 @@ spec:
             httpGet:
               path: {{ .Values.probes.startup.path }}
               port: {{ .Values.probes.startup.port }}
+
             periodSeconds: {{ .Values.probes.startup.periodSeconds }}
             failureThreshold: {{ .Values.probes.startup.failureThreshold }}
 
@@ -58,6 +70,7 @@ spec:
             httpGet:
               path: {{ .Values.probes.liveness.path }}
               port: {{ .Values.probes.liveness.port }}
+
             initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
             periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
             timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds }}
@@ -67,6 +80,7 @@ spec:
             httpGet:
               path: {{ .Values.probes.readiness.path }}
               port: {{ .Values.probes.readiness.port }}
+
             initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
             periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
             timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
