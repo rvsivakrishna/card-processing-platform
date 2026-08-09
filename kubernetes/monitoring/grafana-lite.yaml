@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana-lite
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana-lite
+  template:
+    metadata:
+      labels:
+        app: grafana-lite
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana:12.3.1
+          ports:
+            - containerPort: 3000
+          env:
+            - name: GF_SECURITY_ADMIN_USER
+              value: admin
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              value: admin123
+            - name: GF_DATASOURCES_DEFAULT_NAME
+              value: Prometheus
+          resources:
+            requests:
+              cpu: 25m
+              memory: 128Mi
+            limits:
+              cpu: 150m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-lite
+  namespace: monitoring
+spec:
+  type: NodePort
+  selector:
+    app: grafana-lite
+  ports:
+    - port: 3000
+      targetPort: 3000
+      nodePort: 30300
