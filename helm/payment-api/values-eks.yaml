@@ -1,0 +1,16 @@
+ingress:
+  enabled: false
+
+networkPolicy:
+  enabled: false
+
+networkPolicies:
+  enabled: false
+
+mysql:
+  persistence:
+    storageClassName: gp2
+
+auditService:
+  persistence:
+    storageClassName: gp2

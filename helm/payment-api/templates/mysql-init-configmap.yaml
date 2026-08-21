@@ -6,9 +6,9 @@ metadata:
 
 data:
   init-db.sql: |
-    CREATE DATABASE IF NOT EXISTS auditdb;
+    CREATE DATABASE IF NOT EXISTS carddb;
 
-    USE auditdb;
+    USE carddb;
 
     CREATE TABLE IF NOT EXISTS transactions (
         id INT AUTO_INCREMENT PRIMARY KEY,

@@ -9,7 +9,8 @@ spec:
   type: {{ .Values.service.type }}
 
   selector:
-    {{- include "payment-api.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/name: payment-api
+    app.kubernetes.io/instance: {{ .Release.Name }}
 
   ports:
     - name: http
