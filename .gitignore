@@ -217,3 +217,4 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 helm/payment-api/rendered-eks.yaml
+helm/payment-api/rendered-alb.yaml

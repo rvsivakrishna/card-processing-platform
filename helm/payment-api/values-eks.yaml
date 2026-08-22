@@ -1,5 +1,16 @@
 ingress:
-  enabled: false
+  enabled: true
+  className: alb
+  name: payment-ingress
+  host: ""
+  path: /
+  pathType: Prefix
+
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: null
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
 
 networkPolicy:
   enabled: false
