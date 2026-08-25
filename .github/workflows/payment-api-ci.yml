@@ -18,3 +18,15 @@ jobs:
 
       - name: Build Payment API Docker image
         run: docker build -t payment-api:ci ./applications/payment-api
+            - name: Run Payment API container
+        run: docker run -d --name payment-api-ci -p 8080:8080 payment-api:ci
+
+      - name: Wait for application startup
+        run: sleep 5
+
+      - name: Test Payment API health endpoint
+        run: curl --fail http://localhost:8080/health
+
+      - name: Stop Payment API container
+        if: always()
+        run: docker rm -f payment-api-ci  
