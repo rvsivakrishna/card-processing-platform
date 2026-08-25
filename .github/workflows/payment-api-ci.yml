@@ -18,7 +18,8 @@ jobs:
 
       - name: Build Payment API Docker image
         run: docker build -t payment-api:ci ./applications/payment-api
-            - name: Run Payment API container
+      
+      - name: Run Payment API container
         run: docker run -d --name payment-api-ci -p 8080:8080 payment-api:ci
 
       - name: Wait for application startup
