@@ -1,0 +1,17 @@
+name: Payment API CI
+
+on:
+  push:
+    branches:
+      - feature/github-actions-ci
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: First CI test
+        run: echo "Payment API CI pipeline started successfully"
