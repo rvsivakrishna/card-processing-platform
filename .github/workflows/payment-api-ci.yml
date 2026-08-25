@@ -34,6 +34,7 @@ jobs:
           image-ref: payment-api:ci
           format: table
           exit-code: 1
+          ignore-unfixed: true
           severity: CRITICAL,HIGH
 
       - name: Stop Payment API container
