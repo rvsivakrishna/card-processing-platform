@@ -15,3 +15,6 @@ jobs:
 
       - name: First CI test
         run: echo "Payment API CI pipeline started successfully"
+
+      - name: Build Payment API Docker image
+        run: docker build -t payment-api:ci ./applications/payment-api
